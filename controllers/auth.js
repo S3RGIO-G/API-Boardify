@@ -20,7 +20,8 @@ export async function login(req, res) {
     if (!match) return res.status(404).send({ error: "invalid_password" });
 
     const token = await createToken({ id: user._id })
-    res.cookie("credentials", token);
+    console.log(token);
+    res.cookie("credentials", token, {sameSite:"none"});
     res.send({ id: user._id, email: user.email, userName: user.userName, photo: user.photo })
   }
   catch (err) {
