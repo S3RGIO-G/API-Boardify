@@ -21,10 +21,11 @@ export async function login(req, res) {
     if (!match) return res.status(404).send({ error: "invalid_password" });
 
     const token = await createToken({ id: user._id })
-    console.log(token);
-    // res.cookie("credentials", token, { sameSite: "none", secure: true, maxAge: 1000 * 60 * 60 * 24 });
-    // res.setHeader('set-cookie', `credentials=${token}; Path=/; Secure; SameSite=None; Partitioned;`)
-    res.setHeader('set-cookie', cookie.serialize('credentials', token, { secure: true, sameSite: 'none', path: '/', partitioned: true, maxAge: 60 * 60 * 24 * 2, httpOnly: false }))
+    console.log('--------------- TOKEN: ', token);
+
+    res.setHeader('set-cookie', cookie.serialize('credentials', token, { secure: true, sameSite: 'none', path: '/', partitioned: true, expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), httpOnly: false, domain: `.${req.hostname}` }))
+
+    console.log('--------------- hostName: ', req.hostname);
 
     res.send({ id: user._id, email: user.email, userName: user.userName, photo: user.photo })
   }
