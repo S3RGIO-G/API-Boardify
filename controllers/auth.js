@@ -23,7 +23,7 @@ export async function login(req, res) {
     const token = await createToken({ id: user._id })
     console.log('--------------- TOKEN: ', token);
 
-    res.setHeader('set-cookie', cookie.serialize('credentials', token, { secure: true, sameSite: 'none', path: '/', partitioned: true, expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), httpOnly: false, domain: `.${req.hostname}` }))
+    res.setHeader('set-cookie', cookie.serialize('credentials', token, { secure: true, sameSite: 'none', partitioned: true, expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7) }))
 
     console.log('--------------- hostName: ', req.hostname);
 
@@ -37,7 +37,7 @@ export async function login(req, res) {
 // ** LOGOUT ----------------------
 export function logout(req, res) {
   // res.cookie("credentials", "", { expires: new Date(0) })
-  res.setHeader('set-cookie', cookie.serialize('credentials', "", { secure: true, sameSite: 'none', path: '/', partitioned: true, expires: new Date(0) }));
+  res.setHeader('set-cookie', cookie.serialize('credentials', "", { secure: true, sameSite: 'none', partitioned: true, expires: new Date(0) }));
 
   return res.sendStatus(200);
 }
