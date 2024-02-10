@@ -1,0 +1,23 @@
+[
+  {
+    "id": "c25e520a-2c3b-4b1f-9809-d8b1a78f671e",
+    "email": "test@gmail.com",
+    "password": "$2a$10$t614yJAK.e0Cet3rO0oF1OhfBMD0yVwyDuqllImvW2hBrHWdYVV0y",
+    "userName": "testEr",
+    "photo": "https://image.api/test.com"
+  },
+  {
+    "id": "673a35e5-aaaf-41b8-b764-2c6588f4e02e",
+    "email": "test2@gmail.com",
+    "userName": "testEr",
+    "photo": "https://image.api/test.com",
+    "password": "$2a$10$HgGdEn9Np2Tp2mBZs2K3o.FUO2JCctEB8D.SatBAYDFG/6PIqG.om"
+  },
+  {
+    "id": "6ae8b9ce-2d1d-49e3-8189-c10d4b07b942",
+    "email": "test3@gmail.com",
+    "userName": "testEr",
+    "photo": "https://image.api/test.com",
+    "password": "$2a$10$KCOsxd2KQsfyLO8vdJ/bEe7i2luZ4eUNi5O/3c/QHy6xFeu7ryOuq"
+  }
+]
