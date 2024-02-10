@@ -21,7 +21,8 @@ export async function login(req, res) {
 
     const token = await createToken({ id: user._id })
     console.log(token);
-    res.cookie("credentials", token, { sameSite: "none", secure: true });
+    // res.cookie("credentials", token, { sameSite: "none", secure: true});
+    res.setHeader('set-cookie', `credentials=${token}; Path=/; Secure; SameSite=None; Partitioned;`)
     res.send({ id: user._id, email: user.email, userName: user.userName, photo: user.photo })
   }
   catch (err) {
