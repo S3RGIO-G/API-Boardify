@@ -22,9 +22,9 @@ export async function login(req, res) {
 
     const token = await createToken({ id: user._id })
     console.log(token);
-    res.cookie("credentials", token, { sameSite: "none", secure: true, maxAge: 1000 * 60 * 60 * 24 });
+    // res.cookie("credentials", token, { sameSite: "none", secure: true, maxAge: 1000 * 60 * 60 * 24 });
     // res.setHeader('set-cookie', `credentials=${token}; Path=/; Secure; SameSite=None; Partitioned;`)
-    // res.setHeader('set-cookie', cookie.serialize('credentials', token, { secure: true, sameSite: 'none', path: '/', partitioned: true }))
+    res.setHeader('set-cookie', cookie.serialize('credentials', token, { secure: true, sameSite: 'none', path: '/', partitioned: true, maxAge: 60 * 60 * 24 * 2, httpOnly: false }))
 
     res.send({ id: user._id, email: user.email, userName: user.userName, photo: user.photo })
   }
@@ -35,7 +35,9 @@ export async function login(req, res) {
 
 // ** LOGOUT ----------------------
 export function logout(req, res) {
-  res.cookie("credentials", "", { expires: new Date(0) })
+  // res.cookie("credentials", "", { expires: new Date(0) })
+  res.setHeader('set-cookie', cookie.serialize('credentials', "", { secure: true, sameSite: 'none', path: '/', partitioned: true, expires: new Date(0) }));
+
   return res.sendStatus(200);
 }
 
