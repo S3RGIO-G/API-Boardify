@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { createToken } from '../services/jwt.js';
 import { connect } from '../services/mongoDB.js';
 import { ObjectId } from 'mongodb';
+import cookie from 'cookie';
 
 // ** LOGIN ----------------------
 export async function login(req, res) {
@@ -21,8 +22,10 @@ export async function login(req, res) {
 
     const token = await createToken({ id: user._id })
     console.log(token);
-    // res.cookie("credentials", token, { sameSite: "none", secure: true});
-    res.setHeader('set-cookie', `credentials=${token}; Path=/; Secure; SameSite=None; Partitioned;`)
+    // res.cookie("credentials", token, { sameSite: "none", secure: true });
+    // res.setHeader('set-cookie', `credentials=${token}; Path=/; Secure; SameSite=None; Partitioned;`)
+    res.setHeader('set-cookie', cookie.serialize('credentials', token, { domain: 'localhost', secure: true, sameSite: 'none', path: '/', partitioned: true }))
+
     res.send({ id: user._id, email: user.email, userName: user.userName, photo: user.photo })
   }
   catch (err) {
