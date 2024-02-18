@@ -11,9 +11,9 @@ import { boardsRoutes } from './routes/boards.routes.js';
 const app = express();
 const PORT = process.env.PORT ?? 1234;
 
-const ACCEPTED = [
-  "http://localhost:5173"
-]
+// const ACCEPTED = [
+//   "http://localhost:5173"
+// ]
 
 app.use(json(), morgan('dev'), cookieParser(), cors({
   // origin:'http://localhost:5173'
