@@ -22,6 +22,11 @@ app.use(json(), morgan('dev'), cookieParser(), cors({
     return callback(null, true)
   },
 }))
+
+app.get('/', (req, res) => {
+  res.send('Api is running');
+})
+
 app.use('/auth', authRoutes);
 app.use('/users', usersRoutes);
 app.use('/tasks', tasksRoutes);
@@ -30,7 +35,7 @@ app.use('/boards', boardsRoutes);
 
 app.use('/*', (req, res) => {
   console.error('Source Not Found');
-  res.status(404).end();
+  res.status(404).send('Source not found');
 })
 
 app.listen(PORT, () => {
