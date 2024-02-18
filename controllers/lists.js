@@ -2,8 +2,6 @@ import { ObjectId } from "mongodb";
 import { connect } from "../services/mongoDB.js";
 import { validateList } from "../schemas/list.js";
 
-
-
 export async function getLists(req, res) {
   const { position, name, idUser, idBoard } = req.query;
 

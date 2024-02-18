@@ -2,7 +2,6 @@ import { verifyToken } from '../services/jwt.js';
 
 export async function validateAuthorization(req, res, next) {
   const { credentials } = req.cookies;
-  console.log('cookies: ', req.cookies);
 
   if (!credentials) return res.status(401).send({ error: "No token, authorization denied" })
 

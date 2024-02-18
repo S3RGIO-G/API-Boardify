@@ -38,7 +38,7 @@ export async function getBoard(req, res) {
   }
 }
 
-export async function addBoard(req, res){
+export async function addBoard(req, res) {
   const result = validateBoard(req.body);
   if (result.error) return res.status(400).send({ error: JSON.parse(result.error) })
 
@@ -50,7 +50,7 @@ export async function addBoard(req, res){
     res.status(400).send({ error: err.message });
   }
 }
-export async function updateBoard(req, res){
+export async function updateBoard(req, res) {
   const { id } = req.params;
   let _id = null;
   try {
@@ -72,7 +72,7 @@ export async function updateBoard(req, res){
     res.status(400).send({ error: err.message })
   }
 }
-export async function deleteBoard(req, res){
+export async function deleteBoard(req, res) {
   const { id } = req.params;
   let _id = null;
   try {

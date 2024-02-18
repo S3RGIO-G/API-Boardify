@@ -21,11 +21,8 @@ export async function login(req, res) {
     if (!match) return res.status(404).send({ error: "invalid_password" });
 
     const token = await createToken({ id: user._id })
-    console.log('--------------- TOKEN: ', token);
 
     res.setHeader('set-cookie', cookie.serialize('credentials', token, { secure: true, sameSite: 'none', partitioned: true, expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7) }))
-
-    console.log('--------------- hostName: ', req.hostname);
 
     res.send({ id: user._id, email: user.email, userName: user.userName, photo: user.photo })
   }
@@ -36,7 +33,6 @@ export async function login(req, res) {
 
 // ** LOGOUT ----------------------
 export function logout(req, res) {
-  // res.cookie("credentials", "", { expires: new Date(0) })
   res.setHeader('set-cookie', cookie.serialize('credentials', "", { secure: true, sameSite: 'none', partitioned: true, expires: new Date(0) }));
 
   return res.sendStatus(200);
