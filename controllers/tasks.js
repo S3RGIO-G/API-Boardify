@@ -2,7 +2,7 @@ import { connect } from "../services/mongoDB.js";
 import { ObjectId } from "mongodb";
 import { validateTask } from '../schemas/task.js';
 
-export async function getAll(req, res) {
+export async function getTasks(req, res) {
   const { name, idUser, idList, desc } = req.query;
 
   const task = {};
@@ -23,7 +23,7 @@ export async function getAll(req, res) {
   }
 }
 
-export async function getById(req, res) {
+export async function getTask(req, res) {
   const { id } = req.params;
   let _id = null;
   try {
@@ -90,7 +90,7 @@ export async function updateTask(req, res) {
   }
 }
 
-export async function deleteAll(req, res) {
+export async function deleteTasks(req, res) {
   const { idUser, idList } = req.query;
   const task = {};
 
@@ -108,7 +108,7 @@ export async function deleteAll(req, res) {
   }
 }
 
-export async function deleteById(req, res) {
+export async function deleteTask(req, res) {
   const { id } = req.params;
   let _id = null;
   try {

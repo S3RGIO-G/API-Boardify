@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import { connect } from "../services/mongoDB.js";
 
-export async function searchUsers(req, res) {
+export async function getUsers(req, res) {
   const { email, username } = req.query;
 
   const user = {};
@@ -18,7 +18,7 @@ export async function searchUsers(req, res) {
   }
 }
 
-export async function getUserById(req, res) {
+export async function getUser(req, res) {
   const { id } = req.params;
   let _id = null;
   try {

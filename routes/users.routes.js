@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { getUserById, searchUsers } from "../controllers/users.js";
+import { getUser, getUsers } from "../controllers/users.js";
 
 const router = Router();
 
-router.get('/search', searchUsers);
-router.get('/:id', getUserById);
+router.get('/', getUsers);
+router.get('/:id', getUser);
 
 export const usersRoutes = router;
