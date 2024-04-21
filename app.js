@@ -11,15 +11,17 @@ import { boardsRoutes } from './routes/boards.routes.js';
 const app = express();
 const PORT = process.env.PORT ?? 1234;
 
-// const ACCEPTED = [
-//   "http://localhost:5173"
-// ]
+const ACCEPTED = [
+  // "http://localhost:5173",
+  "https://boardify-web.netlify.app"
+]
 
 app.use(json(), morgan('dev'), cookieParser(), cors({
-  // origin:'http://localhost:5173'
   credentials: true,
   origin: (origin, callback) => {
-    return callback(null, true)
+    if (ACCEPTED.includes(origin) || !origin)
+      return callback(null, true)
+    else return callback(new Error("Not allowed by CORS"));
   },
 }))
 

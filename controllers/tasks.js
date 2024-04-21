@@ -4,7 +4,6 @@ import { validateTask } from '../schemas/task.js';
 
 export async function getTasks(req, res) {
   const { name, idUser, idList, desc } = req.query;
-
   const task = {};
   name ? task.name = name : null;
   idUser ? task.idUser = idUser : null;
@@ -19,112 +18,122 @@ export async function getTasks(req, res) {
     })
     res.send(tasksMap);
   } catch (err) {
-    res.status(500).send({ error: "something_went_wrong" });
+    console.error(err.message);
+    res.status(500).send({ error: "Something went wrong" });
   }
 }
 
 export async function getTask(req, res) {
-  const { id } = req.params;
-  let _id = null;
   try {
-    _id = new ObjectId(id);
-  } catch (err) {
-    return res.status(400).send({ error: "Task ID is not valid" });
-  }
+    const { id } = req.params;
+    if (!ObjectId.isValid(id)) return res.status(400).send({ error: "Task id is not valid" });
 
-  try {
     const db = await connect("tasks");
-    const task = await db.findOne({ _id });
+    const task = await db.findOne({ _id: new ObjectId(id) });
 
-    if (!task) throw Error("Task does not exist");
+    if (!task) res.status(404).send({ error: "Task does not exist" });
     else res.send({ ...task, id: task._id, _id: undefined });
   } catch (err) {
-    res.status(400).send({ error: err.message });
+    console.error(err.message);
+    res.status(500).send({ error: "Something went wrong" });
   }
 }
 
 export async function addTask(req, res) {
+  const { idToken } = req.body;
   const result = validateTask(req.body);
-
   if (result.error) return res.status(400).send({ error: JSON.parse(result.error) })
 
   const { position, idList } = result.data;
-  try {
-    const db = await connect('tasks');
-    const taskFound = await db.findOne({ position, idList });
-    if (taskFound) throw Error("The task position is occupied");
+  if (!ObjectId.isValid(idList)) return res.status(400).send({ error: "Task idList is not valid" });
 
-    const newTask = await db.insertOne({ ...result.data });
+  try {
+    const [dbTasks, dbLists] = await Promise.all([connect('tasks'), connect('lists')]);
+
+    const list = await dbLists.findOne({ _id: new ObjectId(idList), idUser: idToken })
+    if (!list) return res.status(404).send({ error: "List does not exist" });
+    if (list.idUser !== idToken) return res.status(403).send({ error: "Invalid owner" });
+
+    const taskFound = await dbTasks.findOne({ position, idList });
+    if (taskFound) return res.status(400).send({ error: "The position is occupied" });
+
+    const newTask = await dbTasks.insertOne({ ...result.data });
     res.send({ id: newTask.insertedId });
   } catch (err) {
-    res.status(400).send({ error: err.message });
+    console.error(err.message);
+    res.status(500).send({ error: "Something wen wrong" });
   }
 }
 
 export async function updateTask(req, res) {
   const { id } = req.params;
-  let _id = null;
-  try {
-    _id = new ObjectId(id);
-  } catch (err) {
-    return res.status(400).send({ error: "Task ID is not valid" });
-  }
-
+  const { idToken } = req.body;
   const result = validateTask(req.body, true);
+
+  if (!ObjectId.isValid(id)) return res.status(400).send({ error: "Task id is not valid" });
   if (result.error) return res.status(400).send({ error: JSON.parse(result.error) })
 
-  const { position, idList } = result.data;
   try {
     const db = await connect('tasks');
+    const task = await db.findOne({ _id: new ObjectId(id) });
+    const { position: pos, idList: list } = result.data;
 
-    if (position) {
-      const found = await db.findOne({ position, idList });
-      if (found) throw Error("That position is used");
-    }
+    if (!task) return res.status(404).send({ error: "Task does not exist" });
+    else if (task.idUser !== idToken) return res.status(403).send({ error: "Invalid owner" });
 
-    const taskUpdate = await db.findOneAndUpdate({ _id }, { $set: result.data }, { returnDocument: "after" });
-    if (taskUpdate) res.send({ ...taskUpdate, id: taskUpdate._id, _id: undefined });
-    else throw Error("Task id does not exist");
+    const found = await db.findOne({ position: pos || task.position, idList: list || task.idList });
+    if (found && found._id.toString() !== task._id.toString())
+      return res.status(400).send({ error: "The position is occupied" });
+
+    const updated = await db.findOneAndUpdate({ _id: new ObjectId(id) }, { $set: result.data }, { returnDocument: "after" });
+
+    res.send({ ...updated, id: updated._id, _id: undefined });
   } catch (err) {
-    res.status(400).send({ error: err.message })
+    console.error(err.message);
+    res.status(500).send({ error: "Something went wrong" })
   }
 }
 
 export async function deleteTasks(req, res) {
-  const { idUser, idList } = req.query;
-  const task = {};
+  const { idToken } = req.body;
+  const { idList, hasDescription, name } = req.query;
+  const filters = { idUser: idToken };
 
-  idUser ? task.idUser = idUser : null;
-  idList ? task.idList = idList : null;
-  if (!Object.entries(task).length) return res.status(400).send({ error: "There are no filters" })
+  name ? filters.name = name : null;
+  idList ? filters.idList = idList : null;
+  hasDescription ? filters.hasDescription = hasDescription : null;
+
+  if (!idList && !hasDescription && !name) return res.status(400).send({ error: "There are no filters" });
+  if (idList && !ObjectId.isValid(idList))
+    return res.status(400).send({ error: "Task idList is not valid" });
 
   try {
     const db = await connect('tasks');
-    const tasks = await db.deleteMany(task);
+    const tasks = await db.deleteMany(filters);
 
-    res.send({ deleted: true, counter: tasks.deletedCount });
+    res.send({ deleted: Boolean(tasks.deletedCount), counter: tasks.deletedCount });
   } catch (err) {
-    res.status(500).send({ error: "something_went_wrong" });
+    console.error(err.message);
+    res.status(500).send({ error: "Something went wrong" });
   }
 }
 
 export async function deleteTask(req, res) {
   const { id } = req.params;
-  let _id = null;
-  try {
-    _id = new ObjectId(id);
-  } catch (err) {
-    return res.status(400).send({ error: "Task ID is not valid" });
-  }
+  const { idToken } = req.body;
+  if (!ObjectId.isValid(id)) return res.status(400).send({ error: "Task id is not valid" });
 
   try {
-    const _id = new ObjectId(id);
     const db = await connect('tasks');
-    const deleted = await db.findOneAndDelete({ _id });
+    const task = await db.findOne({ _id: new ObjectId(id) });
 
-    if (deleted) res.send({ ...deleted, id: deleted._id, _id: undefined });
-    else throw Error('Task id does not exist');
+    if (!task) return res.status(404).send({ error: "Task does not exist" });
+    else if (task.idUser !== idToken) return res.status(403).send({ error: "Invalid owner" });
+
+    const deleted = await db.findOneAndDelete({ _id: task._id });
+    res.send({ ...deleted, id: deleted._id, _id: undefined });
   } catch (err) {
-    res.status(400).send({ error: err.message });
+    console.error(err.message);
+    res.status(500).send({ error: "Something went wrong" });
   }
 }

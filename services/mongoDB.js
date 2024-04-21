@@ -2,8 +2,8 @@ import { MongoClient, ServerApiVersion } from 'mongodb';
 import 'dotenv/config'
 
 const CONNECTION_STRING = process.env.CONNECTION_STRING;
+const DB_NAME = process.env.DB_NAME;
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(CONNECTION_STRING, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -14,17 +14,20 @@ const client = new MongoClient(CONNECTION_STRING, {
 
 export async function connect(collection) {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-    // Send a ping to confirm a successful connection
-    const db = client.db("taskapp");
-    // console.log(await db.collections());
+    const db = client.db(DB_NAME);
+
     return db.collection(collection);
   } catch (err) {
     console.error("Error connecting to the database");
     console.error(err);
 
-    // Ensures that the client will close when you finish/error
     await client.close();
   }
+}
+
+export async function checkOwner(collectionName, objectId, idUser) {
+  const db = await connect(collectionName);
+  const res = await db.findOne({ _id: objectId, idUser })
+  if (!res) throw Error("The owner is not the same");
 }
